@@ -1,0 +1,119 @@
+// Constants
+41 s! // Define SIZE (s) as 41 (odd number for center point)
+6 y!  // Define SYMMETRY (y) as 6 (6-fold symmetry)
+8 b!  // Define BRANCHES (b) as 8 (number of main branches)
+
+// Initialize grid
+:I                // Define function I (Initialize)
+  s s * /A g!     // Allocate s*s bytes of memory, store address in g
+  s s * (         // Loop s*s times
+    0 g /i !      // Set each byte to 0 (clear the grid)
+  )
+;
+
+// Draw point
+:D                // Define function D (Draw point)
+  x! y!           // Pop x and y coordinates from stack
+  x 0 >= x s < &  // Check if x is within bounds (0 to s-1)
+  y 0 >= & y s < & ( // Check if y is within bounds (0 to s-1)
+    y s * x +     // Calculate 1D index from 2D coordinates
+    g +           // Add to base address of grid
+    /T $!         // Set byte to true (/T) at calculated address
+  )
+;
+
+// Generate random number
+:R                // Define function R (Random)
+  /r 255 &        // Use lower 8 bits of /r as pseudo-random number
+;
+
+// Draw line
+:L                // Define function L (Line)
+  x1! y1! x2! y2! // Pop end (x2,y2) and start (x1,y1) coordinates
+  x2 x1 - dx!     // Calculate x difference
+  y2 y1 - dy!     // Calculate y difference
+  dx dy + 0 > (   // If there's at least one step to take
+    dx 0 < (      // If dx is negative
+      dx ~1 * dx! // Make dx positive
+      -1 sx!      // Set x step to -1
+    ) /E (        // Else
+      1 sx!       // Set x step to 1
+    )
+    dy 0 < (      // If dy is negative
+      dy ~1 * dy! // Make dy positive
+      -1 sy!      // Set y step to -1
+    ) /E (        // Else
+      1 sy!       // Set y step to 1
+    )
+    dx dy - e!    // Initialize error term
+    /T (          // Start loop
+      x1 y1 D     // Draw current point
+      x1 x2 = y1 y2 = & /W // Break if reached end point
+      e 0 >= (    // If error term is non-negative
+        dy e - e! // Adjust error term
+        sx x1 + x1! // Step in x direction
+      ) /E (      // Else
+        dx e + e! // Adjust error term
+        sy y1 + y1! // Step in y direction
+      )
+    )
+  )
+;
+
+// Generate snowflake
+:G                // Define function G (Generate snowflake)
+  s 2/ c!         // Calculate center point (c)
+  b (             // Loop b times (for each main branch)
+    R s 4 / / 2 + l! // Random branch length (2 to s/4)
+    y (           // Loop y times (for symmetry)
+      c l + x!    // Calculate end x of branch
+      c y!        // Set end y to center
+      /i 60 * 6 / a! // Calculate angle (0, 60, 120, 180, 240, 300)
+      a 30 < (    // Adjust coordinates based on angle sector
+        x c - x! y c - y!
+      ) /E ( a 90 < (
+        x c - y! y c + x! x c! y c!
+      ) /E ( a 150 < (
+        y c - y! x c - x!
+      ) /E ( a 210 < (
+        y c - x! x c + y! x c! y c!
+      ) /E ( a 270 < (
+        x c + x! y c + y!
+      ) /E (
+        x c + y! y c - x! x c! y c!
+      )))))
+      c c x y L   // Draw main branch
+      R 3 / 1+ n! // Random number of sub-branches (1 to 3)
+      n (         // Loop for each sub-branch
+        R l / 1+ t! // Random sub-branch start point
+        R l 2 / / 1+ e! // Random sub-branch length (1 to l/2)
+        R 3 / 1- d! // Random direction (-1, 0, or 1)
+        c t + x1! c t + y1! // Calculate sub-branch start
+        x1 e + x2! y1 d e * + y2! // Calculate sub-branch end
+        x1 y1 x2 y2 L // Draw sub-branch
+      )
+    )
+  )
+;
+
+// Print grid
+:P                // Define function P (Print)
+  s (             // Loop s times (for each row)
+    s (           // Loop s times (for each column)
+      g /j s * /i + \? ( // Check if point is set
+        42 /C     // Print '*' if set
+      ) /E (      // Else
+        32 /C     // Print ' ' if not set
+      )
+    )
+    10 /C         // Print newline after each row
+  )
+;
+
+// Main function
+:M                // Define function M (Main)
+  I G P           // Initialize, Generate, Print
+;
+
+// Run the program
+M                 // Call the main function

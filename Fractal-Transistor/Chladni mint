@@ -1,0 +1,39 @@
+// Constants for grid dimensions
+80 w! // WIDTH
+40 h! // HEIGHT
+
+// Vibration function
+:V // ( x y m n -- result )
+  n! m! y! x!
+  x m * y n * +
+  15 / r! // Use / for division, store remainder in r
+  /r // Push remainder onto stack
+;
+
+// Chladni Figure function
+:C // ( m n -- )
+  n! m!
+  h (
+    w (
+      /i /j m n V
+      5 < (
+        42 /C // Print '*' for low vibration values
+      ) /E (
+        32 /C // Print ' ' for higher values (nodal areas)
+      )
+    )
+    10 /C // New line after each row
+  )
+;
+
+// Main function
+:M
+  `Enter mode numbers m and n (e.g., 2 3): `
+  /K 48 - m!
+  /K 48 - n!
+  /N // New line after input
+  m n C // Generate and print Chladni figure
+;
+
+// Run the program
+M
