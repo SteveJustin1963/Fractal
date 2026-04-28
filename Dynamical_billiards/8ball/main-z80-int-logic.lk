@@ -1,0 +1,11 @@
+-mjwx
+-i main-z80-int-logic.ihx
+-b _CODE = 0x0000
+-b _DATA = 0x8000
+-k /opt/sdcc-4.2.0/bin/../share/sdcc/lib/z80
+-k /usr/local/share/sdcc/lib/z80
+-l z80
+/opt/sdcc-4.2.0/bin/../share/sdcc/lib/z80/crt0.rel
+main-z80-int-logic.rel
+
+-e
